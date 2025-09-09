@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cyrus Data Hub</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: url('https://images.unsplash.com/photo-1504384308090-c894fdcc538d?auto=format&fit=crop&w=1350&q=80') no-repeat center center/cover;
+      margin: 0;
+      padding: 0;
+      color: white;
+    }
+    .overlay {
+      background: rgba(0,0,0,0.6);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+    .form-container {
+      background: rgba(255,255,255,0.1);
+      padding: 20px;
+      border-radius: 15px;
+      max-width: 420px;
+      width: 100%;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+    }
+    h2 {
+      text-align: center;
+      margin-bottom: 10px;
+    }
+    .payment-info {
+      background: rgba(0,0,0,0.5);
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    input, select, button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 5px;
+      border-radius: 8px;
+      border: none;
+    }
+    input, select {
+      background: rgba(255,255,255,0.9);
+    }
+    button {
+      background: #ff9800;
+      color: white;
+      font-weight: bold;
+      margin-top: 15px;
+      cursor: pointer;
+    }
+    button:hover {
+      background: #e68900;
+    }
+    .footer {
+      margin-top: 20px;
+      text-align: center;
+      font-size: 14px;
+      background: rgba(0,0,0,0.5);
+      padding: 10px;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="overlay">
+    <div class="form-container">
+      <h2>Cyrus Data Hub</h2>
+
+      <div class="payment-info">
+        📌 <b>Payment Instructions:</b><br>
+        Send money to: <b>0502376541 (Vodafone)</b><br>
+        ✅ Vodafone users: send directly<br>
+        ⚠ MTN users: select <b>Other Networks</b> when sending
+      </div>
+
+      <form id="orderForm">
+        <label for="number">Your Phone Number</label>
+        <input type="text" id="number" name="number" required placeholder="Enter your phone number">
+
+        <label>Select Bundle</label>
+        <div>
+          <b>MTN Bundles</b>
+          <select id="bundle" name="bundle" required>
+            <option value="MTN 1GB - ₵6">1GB → ₵6</option>
+            <option value="MTN 2GB - ₵12">2GB → ₵12</option>
+            <option value="MTN 3GB - ₵15">3GB → ₵15</option>
+            <option value="MTN 4GB - ₵22">4GB → ₵22</option>
+            <option value="MTN 5GB - ₵27">5GB → ₵27</option>
+          </select>
+        </div>
+
+        <div style="margin-top: 15px;">
+          <b>Vodafone Bundles</b>
+          <select id="bundle_voda" name="bundle_voda">
+            <option value="">--Select if Vodafone--</option>
+            <option value="Vodafone 1GB - ₵10">1GB → ₵10</option>
+            <option value="Vodafone 2GB - ₵20">2GB → ₵20</option>
+            <option value="Vodafone 3GB - ₵30">3GB → ₵30</option>
+            <option value="Vodafone 4GB - ₵40">4GB → ₵40</option>
+            <option value="Vodafone 5GB - ₵50">5GB → ₵50</option>
+          </select>
+        </div>
+
+        <label for="screenshot">Upload Payment Screenshot</label>
+        <input type="file" id="screenshot" name="screenshot" accept="image/*" required>
+
+        <button type="submit">Submit Order</button>
+      </form>
+
+      <div class="footer">
+        📞 Customer Care: <b>0502376541</b><br>
+        🕒 Working Days: Monday – Saturday
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const BOT_TOKEN = "8236254142:AAEhPJEJ55xWzhocf-DAS1jMQOvoO7Dch9Q"; 
+    const CHAT_ID = "7591978927";  
+
+    document.getElementById("orderForm").addEventListener("submit", function(e) {
+      e.preventDefault();
+
+      const number = document.getElementById("number").value;
+      const mtnBundle = document.getElementById("bundle").value;
+      const vodaBundle = document.getElementById("bundle_voda").value;
+      const chosenBundle = vodaBundle !== "" ? vodaBundle : mtnBundle;
+      const file = document.getElementById("screenshot").files[0];
+
+      const message = `📱 New Order:\n\nPhone: ${number}\nBundle: ${chosenBundle}\nPayment sent to: 0502376541 (Vodafone)`;
+
+      // Send text message
+      fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          chat_id: CHAT_ID,
+          text: message
+        })
+      });
+
+      // Send screenshot if uploaded
+      if (file) {
+        const formData = new FormData();
+        formData.append("chat_id", CHAT_ID);
+        formData.append("photo", file);
+
+        fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendPhoto`, {
+          method: "POST",
+          body: formData
+        });
+      }
+
+      alert("✅ Order submitted! Please wait for confirmation.");
+      document.getElementById("orderForm").reset();
+    });
+  </script>
+</body>
+</html>
